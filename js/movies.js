@@ -1,4 +1,5 @@
 "use strict"
+//kmorgport
 const movieSearch = document.getElementById('movieSearchButton')
 const movieTitle = document. getElementById('addMovieTitle')
 const movieYear = document.getElementById('addMovieYear')
@@ -15,7 +16,9 @@ const Genre = document.getElementById('genre')
 const director = document.getElementById('director')
 const plot = document.getElementById('plot')
 const actors = document.getElementById('actors')
+const updateMovie = document.getElementById('update')
 
+//kmorgport
 function createCard(movieTitle, poster, genre, movieId){
     const allRow = document.getElementById('allRow')
     const card = document.createElement('div')
@@ -59,8 +62,7 @@ MicroModal.init()
 //This function takes a text input, and plugs it into the OMDB API. The OMDB API only returns information for full words. If the API detects a full word,
 //it pushes all of the movies that it detects containing that word onto an array. This function is grabbing all of those returned movies from the API, and returning them
 //as an array.
-
-//created together
+//james-mcbride
 function autoFillModal(){
     // movieGenre.placeholder = 'test'
     // movieTitle.placeholder = 'test'
@@ -74,7 +76,6 @@ function autoFillModal(){
     // movieTitle.placeholder = jsonObj.Search[0].Title
     // movieYear.placeholder = jsonObj.Search[0].Year
 }
-
 //james-mcbride
 function retrieveSearchedMoviesGenre(){
     // this commented out promise takes the movies provided by the OMDB API,. accesses the TMDB API, and grabs each movies genre.
@@ -94,7 +95,6 @@ function retrieveSearchedMoviesGenre(){
 }
 
 //this function will grab the top movie match from the add movies search bar, when the search bar is hit.
-//james-mcbride
 function retrieveSearchedMovies(movie) {
     var movieInfo=[]
     fetch(`http://www.omdbapi.com/?s=${movie}&apikey=${OMDB_TOKEN}`)
@@ -120,9 +120,8 @@ function retrieveSearchedMovies(movie) {
             retrieveSearchedMoviesGenre()
         })
 }
-
-//this function will be run as the search input is typed. It will add add a dropdown suggestion list.
 //james-mcbride
+//this function will be run as the search input is typed. It will add add a dropdown suggestion list.
 function searchMoviesDropdown(movie) {
     let movieInfo=[]
     fetch(`http://www.omdbapi.com/?s=${movie}&apikey=${OMDB_TOKEN}`)
@@ -178,12 +177,11 @@ const getOptions = {
 const deleteMethod = {
     method: 'DELETE'
 }
-//lines 181-92 james-mcbride : lines 193-231 kmorgport
+//kmorgport and james-mcbride
 //This promise loads the movies from glitch, and makes a card for each movie in the JSON file.
 fetch("https://apple-veil-game.glitch.me/movies", getOptions)
     .then( response => response.json() )
     .then(data => {
-        console.log(data)
         for (let i=0; i<data.length; i++) {
             createCard(data[i].title, data[i].poster, data[i].genre, data[i].id)
         }
@@ -211,11 +209,10 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
             fetch(`https://apple-veil-game.glitch.me/movies/${id}`, getOptions)
                 .then(response=>response.json())
                 .then(data=>{
-                    console.log(data)
                     title.placeholder = data.title
                     title.value = data.title
-                    rating.placeholder = data.rating[1]
-                    rating.value = data.rating[1]
+                    rating.placeholder = data.rating[0]
+                    rating.value = data.rating[0]
                     Year.placeholder = data.year
                     Year.value = data.year
                     Genre.placeholder = data.genre
@@ -226,7 +223,45 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
                     plot.value = data.plot
                     actors.placeholder = data.actors
                     actors.value = data.actors
+
+                    return {
+                        title: title.value,
+                        rating: rating.value,
+                        poster: data.poster,
+                        year: Year.value,
+                        genre: Genre.value,
+                        director: director.value,
+                        plot: plot.value,
+                        actors: actors.value,
+                        id : data.id
+                    }
+
+
+                }).then(updateReq=>{
+                let id = updateReq.id
+                updateMovie.addEventListener('click',()=>{
+                    let updateObj = {
+                        title: title.value,
+                        rating: rating.value,
+                        year: Year.value,
+                        genre: Genre.value,
+                        director: director.value,
+                        plot: plot.value,
+                        actors: actors.value,
+                    }
+                    const patchMethod = {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updateObj)
+                    }
+                    fetch(`https://apple-veil-game.glitch.me/movies/${id}`, patchMethod)
+                        .then(response =>console.log(response))
+                        .catch(error =>console.log(error))
                 })
+
+            })
         })
     })
 })
@@ -234,6 +269,7 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
     .catch( error => console.error(error) ); /* handle errors */
 
 //This event listener is waiting for the add movies search bar to be typed in, and will suggest movies as the titles are typed by the user.
+//james-mcbride
 newMovieInput.addEventListener("keyup",() =>{
     let movieSearchValue=document.getElementById("newMovieInput").value
     movieSearchValue.replace(' ', "+")
@@ -248,12 +284,12 @@ newMovieInput.addEventListener("keyup",() =>{
 })
 
 // console.log(movieOption)
-//james-mcbride and kmorgport
 movieSearch.addEventListener('click',()=>{
+    console.log('testing')
     autoFillModal()
 
 })
-//kmorgport
+
 submitMovie.addEventListener('click',()=>{
     postToDatabase()
 })
@@ -309,7 +345,6 @@ searchInput.addEventListener("keyup", ()=>{
         }
     }
 })
-
 //james-mcbride
 function sortMovieGenre(genre, originalCard){
 
@@ -345,8 +380,3 @@ function sortMovieGenre(genre, originalCard){
         }
     })
 }
-
-
-
-
-
