@@ -107,12 +107,117 @@ function createCard(movieTitle, poster, genre, movieId){
 }
 MicroModal.init()
 
+//kmorgport
 function movieManipulation(id, method, title){
     fetch(`https://apple-veil-game.glitch.me/movies/${id}`, method)
         .then(response =>console.log(response))
         .catch(error =>console.log(error))
     let cardTitle = document.getElementById(`${id}b`)
     cardTitle.innerText = title;
+}
+
+//james-mcbride
+
+function autoFillModal(){
+    // movieGenre.placeholder = 'test'
+    // movieTitle.placeholder = 'test'
+    // movieYear.placeholder = 'test'
+    let movieSearch=document.getElementById("newMovieInput").value
+    movieSearch.replace(' ', "+")
+    retrieveSearchedMovies(movieSearch)
+
+
+
+    // movieTitle.placeholder = jsonObj.Search[0].Title
+    // movieYear.placeholder = jsonObj.Search[0].Year
+}
+
+function retrieveSearchedMovies(movie) {
+    var movieInfo=[]
+    fetch(`http://www.omdbapi.com/?s=${movie}&apikey=${OMDB_TOKEN}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.Response==="True") {
+                for (let i = 0; i < data.Search.length; i++) {
+                    movieInfo.push(data.Search[i])
+                }
+            }
+            if (movieInfo.length>0){
+                movieTitle.placeholder = movieInfo[0].Title
+                movieTitle.value = movieInfo[0].Title
+                movieYear.placeholder = movieInfo[0].Year
+                movieYear.value = movieInfo[0].Year
+                movieID = movieInfo[0].imdbID
+                imdbID.placeholder = movieID
+                imdbID.value = movieID
+            }
+            return data
+        })
+        .then(data=> {
+            retrieveSearchedMoviesGenre()
+        })
+}
+//james-mcbride
+newMovieInput.addEventListener("keyup",() =>{
+    let movieSearchValue=document.getElementById("newMovieInput").value
+    movieSearchValue.replace(' ', "+")
+    if (movieSearchValue.length>5) {
+        searchMoviesDropdown(movieSearchValue)
+
+    } else if (movieSearchValue.length===0){
+        searchDropdown.innerHTML=""
+    }
+
+
+})
+
+function postToDatabase(){
+    let movie = imdbID.value
+    fetch(`http://www.omdbapi.com/?i=${movie}&apikey=${OMDB_TOKEN}`)
+        .then(response => response.json())
+        .then(data => {
+            let movieObj = {
+                title: data.Title,
+                rating: data.Ratings[1],
+                poster: data.Poster,
+                year: data.Year,
+                genre: data.Genre,
+                director: data.Director,
+                plot: data.Plot,
+                actors: data.Actors,
+            }
+            return {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(movieObj)
+            }
+
+        }).then(postOpt=>{
+        fetch("https://apple-veil-game.glitch.me/movies",postOpt)
+            .then(response =>console.log(response))
+            .catch(error=>console.log(error))
+    }).then(data=>{
+        fetch("https://apple-veil-game.glitch.me/movies", getOptions)
+            .then(response=>response.json())
+            .then(movies=>{
+                let movie = movies[movies.length-1]
+                createCard(movie.title, movie.poster, movie.genre, movie.id)
+                return movie.id
+            })
+        return data
+    }).then(id =>{
+        let button = document.getElementById(id)
+        button.addEventListener('click',()=>{
+            fetch(`https://apple-veil-game.glitch.me/movies/${id}`, deleteMethod)
+                .then(response=>console.log(response))
+                .catch(error =>console.log(error))
+            let card = document.getElementById(`${id}a`)
+            let row = card.parentNode
+            row.removeChild(card)
+        })
+    })
 }
 
 fetch("https://apple-veil-game.glitch.me/movies", getOptions)
@@ -123,6 +228,12 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
         })
         //This hides the loading div, which was running up until all of the cards were generated.
         $("#loading").hide()
+        movieSearch.addEventListener('click',()=>{
+            autoFillModal()
+        })
+        submitMovie.addEventListener('click',()=>{
+            postToDatabase()
+        })
         return [...document.getElementsByClassName('delete')]
 
     }).then(buttons=>{
