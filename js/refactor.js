@@ -141,7 +141,7 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
 }).then(editButtons =>{
     editButtons.forEach(button =>{
         let sibling = button.nextElementSibling
-        var id = sibling.id
+        let id = sibling.id
         button.addEventListener('click',()=>{
             console.log(id)
             fetch(`https://apple-veil-game.glitch.me/movies/${id}`, getOptions)
