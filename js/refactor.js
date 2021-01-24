@@ -18,6 +18,7 @@ const director = document.getElementById('director')
 const plot = document.getElementById('plot')
 const actors = document.getElementById('actors')
 const updateMovie = document.getElementById('update')
+const jsonid = document.getElementById('id')
 
 const getOptions = {
     method: 'GET',
@@ -140,8 +141,9 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
 }).then(editButtons =>{
     editButtons.forEach(button =>{
         let sibling = button.nextElementSibling
-        let id = sibling.id
+        var id = sibling.id
         button.addEventListener('click',()=>{
+            console.log(id)
             fetch(`https://apple-veil-game.glitch.me/movies/${id}`, getOptions)
                 .then(response=>response.json())
                 .then(data=>{
@@ -151,6 +153,7 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
                     rating.value = data.rating[0]
                     Year.placeholder = data.year
                     Year.value = data.year
+                    jsonid.value = data.id
                     Genre.placeholder = data.genre
                     Genre.value = data.genre
                     director.placeholder = data.director
@@ -160,47 +163,33 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
                     actors.placeholder = data.actors
                     actors.value = data.actors
 
-                    return {
-                        title: title.value,
-                        rating: rating.value,
-                        poster: data.poster,
-                        year: Year.value,
-                        genre: Genre.value,
-                        director: director.value,
-                        plot: plot.value,
-                        actors: actors.value,
-                        id : data.id
-                    }
-
-
-                }).then(updateReq=>{
-                updateMovie.addEventListener('click',()=>{
-                    let updateObj = {
-                        title: title.value,
-                        rating: rating.value,
-                        year: Year.value,
-                        genre: Genre.value,
-                        director: director.value,
-                        plot: plot.value,
-                        actors: actors.value,
-                        id : updateReq.id
-                    }
-                    const patchMethod = {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(updateObj)
-                    }
-                    //cannot locate why replaces json data, potentially due to lag???
-                    movieManipulation(id, patchMethod, updateObj.title);
-
                 })
-            })
             // let update = document.getElementById(`${id}b`)
             // update.innerText = updateObj.title;
 
         })
+
+    })
+    updateMovie.addEventListener('click',()=>{
+        let updateReq = {
+            title: title.value,
+            rating: rating.value,
+            year: Year.value,
+            genre: Genre.value,
+            director: director.value,
+            plot: plot.value,
+            actors: actors.value,
+            id : jsonid.value
+        }
+        console.log(updateReq)
+        const patchMethod = {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateReq)
+        }
+        movieManipulation(updateReq.id, patchMethod, updateReq.title);
+
     })
 })
-
