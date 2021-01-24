@@ -77,6 +77,7 @@ function createCard(movieTitle, poster, genre, movieId){
     cardBody.setAttribute('class','card-body text-center')
     const title = document.createElement('h5');
     title.setAttribute('class','card-title')
+    title.setAttribute("id",`${movieId}b`)
     title.innerText = `${movieTitle}` //add Jason object property here
     // const anchor = document.createElement('a')
     // anchor.innerText = 'View Profile'
@@ -105,6 +106,14 @@ function createCard(movieTitle, poster, genre, movieId){
 }
 MicroModal.init()
 
+function movieManipulation(id, method, title){
+    fetch(`https://apple-veil-game.glitch.me/movies/${id}`, method)
+        .then(response =>console.log(response))
+        .catch(error =>console.log(error))
+    let cardTitle = document.getElementById(`${id}b`)
+    cardTitle.innerText = title;
+}
+
 fetch("https://apple-veil-game.glitch.me/movies", getOptions)
     .then( response => response.json() )
     .then(movies => {
@@ -114,6 +123,7 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
         //This hides the loading div, which was running up until all of the cards were generated.
         $("#loading").hide()
         return [...document.getElementsByClassName('delete')]
+
     }).then(buttons=>{
     buttons.forEach(button=>{
         let id = button.id
@@ -164,7 +174,6 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
 
 
                 }).then(updateReq=>{
-                let id = updateReq.id
                 updateMovie.addEventListener('click',()=>{
                     let updateObj = {
                         title: title.value,
@@ -183,15 +192,14 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
                         },
                         body: JSON.stringify(updateObj)
                     }
-                    fetch(`https://apple-veil-game.glitch.me/movies/${id}`, patchMethod)
-                        .then(response =>console.log(response))
-                        .catch(error =>console.log(error))
+                    //cannot locate why replaces json data, potentially due to lag???
+                    movieManipulation(id, patchMethod, updateObj.title);
+
                 })
-                return updateMovie
             })
-            //     .then(movieObj =>{
-            //
-            // })
+            // let update = document.getElementById(`${id}b`)
+            // update.innerText = updateObj.title;
+
         })
     })
 })
