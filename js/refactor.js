@@ -30,6 +30,40 @@ const getOptions = {
 const deleteMethod = {
     method: 'DELETE'
 }
+function sortMovieGenre(genre, originalCard){
+
+    let actionRow=document.getElementById("actionRow")
+    let comedyRow=document.getElementById("comedyRow")
+    let dramaRow=document.getElementById("dramaRow")
+    let romanceRow=document.getElementById("romanceRow")
+    let horrorRow=document.getElementById("horrorRow")
+    let fantasyRow=document.getElementById("scififantRow")
+    let movieGenres=genre.split(", ")
+    let actionAdventureCounter=0;
+    let scifiFantasyCounter=0;
+    movieGenres.forEach((element,index) =>{
+        let card=originalCard.cloneNode(true)
+        if (element==="Action" || element==="Adventure"){
+            if (actionAdventureCounter===0) {
+                actionRow.appendChild(card)
+                actionAdventureCounter++
+            }
+        } else if(element==="Comedy"){
+            comedyRow.appendChild(card)
+        } else if(element==="Drama"){
+            dramaRow.appendChild(card)
+        } else if(element==="Romance"){
+            romanceRow.appendChild(card)
+        } else if(element==="Horror"){
+            horrorRow.appendChild(card)
+        } else if(element==="Fantasy" || element==="Sci-Fi"){
+            if (scifiFantasyCounter===0) {
+                fantasyRow.appendChild(card)
+                scifiFantasyCounter++
+            }
+        }
+    })
+}
 
 function createCard(movieTitle, poster, genre, movieId){
     const allRow = document.getElementById('allRow')
@@ -73,9 +107,9 @@ MicroModal.init()
 
 fetch("https://apple-veil-game.glitch.me/movies", getOptions)
     .then( response => response.json() )
-    .then(data => {
-        data.forEach(movie=>{
-            createCard(movie.title, movie.poster,movie.genre, movie.id)
+    .then(movies => {
+        movies.forEach(movie=>{
+            createCard(movie.title, movie.poster, movie.genre, movie.id)
         })
         //This hides the loading div, which was running up until all of the cards were generated.
         $("#loading").hide()
@@ -154,9 +188,11 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
                         .catch(error =>console.log(error))
                 })
                 return updateMovie
-            }).then(movieObj =>{
-
             })
+            //     .then(movieObj =>{
+            //
+            // })
         })
     })
 })
+
