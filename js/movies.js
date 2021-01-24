@@ -59,6 +59,7 @@ function createCard(movieTitle, poster, genre, movieId){
 }
 MicroModal.init()
 
+function updateCard(){}
 //This function takes a text input, and plugs it into the OMDB API. The OMDB API only returns information for full words. If the API detects a full word,
 //it pushes all of the movies that it detects containing that word onto an array. This function is grabbing all of those returned movies from the API, and returning them
 //as an array.
@@ -248,6 +249,7 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
                         director: director.value,
                         plot: plot.value,
                         actors: actors.value,
+                        id : updateReq.id
                     }
                     const patchMethod = {
                         method: 'PATCH',
@@ -260,6 +262,8 @@ fetch("https://apple-veil-game.glitch.me/movies", getOptions)
                         .then(response =>console.log(response))
                         .catch(error =>console.log(error))
                 })
+                return updateMovie
+            }).then(movieObj =>{
 
             })
         })
@@ -327,8 +331,20 @@ function postToDatabase(){
             .then(movies=>{
                 let movie = movies[movies.length-1]
                 createCard(movie.title, movie.poster, movie.genre, movie.id)
+                return movie.id
             })
-    })
+        return data
+    }).then(id =>{
+        let button = document.getElementById(id)
+        button.addEventListener('click',()=>{
+            fetch(`https://apple-veil-game.glitch.me/movies/${id}`, deleteMethod)
+                .then(response=>console.log(response))
+                .catch(error =>console.log(error))
+            let card = document.getElementById(`${id}a`)
+            let row = card.parentNode
+            row.removeChild(card)
+        })
+        })
 }
 
 //james-mcbride
